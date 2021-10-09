@@ -1,1 +1,1 @@
-export const TOKEN = "";
+export const TOKEN = process.env.ESC_TOKEN;
