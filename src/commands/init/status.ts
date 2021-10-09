@@ -87,18 +87,19 @@ export function initStatus(): Status {
         report: (a, b) => reportStatus(a, b, false),
         resolve: (a, b) => reportStatus(a, b, true),
         get message() {
-            const rows: string[] = [];
-            forEachStatus(([start, end], isActive) => {
-                const { light, wrap } = isActive ? activeStyle : deactiveStyle;
-                rows.push(`${light} ${wrap}${start}-${end}${wrap}`);
-            });
-
-            return stripIndent`
+            let message = stripIndent`
                 **Escalator Statuses:**
                 \`\`\`py
-                ${rows.join("\n")}
-                \`\`\`
             `;
+
+            forEachStatus(([start, end], isActive) => {
+                const { light, wrap } = isActive ? activeStyle : deactiveStyle;
+                message += `\n${light} ${wrap}${start}-${end}${wrap}`;
+            });
+
+            message += "\n```";
+
+            return message;
         },
         get splitStatuses() {
             return split();
