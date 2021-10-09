@@ -1,4 +1,9 @@
-import { GuildChannel, MessageActionRow, MessageSelectMenu } from "discord.js";
+import {
+    GuildChannel,
+    MessageActionRow,
+    MessageEmbed,
+    MessageSelectMenu,
+} from "discord.js";
 import { OptionType, slashLeaf } from "../slash-command";
 import { initStatus, ReportResult } from "./init/status";
 import { AsyncTaskQueue } from "./init/async-action-queue";
@@ -93,8 +98,9 @@ export default slashLeaf({
                 const start = parseInt(selected[0]);
                 const end = parseInt(selected[1]);
 
-                if (!antiSpam.tryInteract(i.user.id)) {
-                    await i.user.send(
+                const { user } = i;
+                if (!antiSpam.tryInteract(user.id)) {
+                    await user.send(
                         "Chill out! To prevent spam, you must wait 10 seconds between each report"
                     );
                     return;
@@ -113,9 +119,20 @@ export default slashLeaf({
                             content: status.message,
                             components: createComponents(),
                         });
+
                         if (historyChannel) {
-                            //TODO
-                            //historyChannel.send()
+                            const embed = new MessageEmbed()
+                                .setColor(isBroke ? "RED" : "GREEN")
+                                .setAuthor(
+                                    `reported by ${user.tag}`,
+                                    user.avatarURL() ?? undefined
+                                )
+                                .setTitle(
+                                    `${start}-${end} is ${
+                                        isBroke ? "down" : "back and running"
+                                    }!`
+                                );
+                            await historyChannel.send({ embeds: [embed] });
                         }
                         break;
                     case ReportResult.Invalid:
