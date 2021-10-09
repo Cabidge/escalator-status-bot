@@ -94,11 +94,9 @@ export default slashLeaf({
                 const end = parseInt(selected[1]);
 
                 if (!antiSpam.tryInteract(i.user.id)) {
-                    await i.reply({
-                        content:
-                            "Chill out! To prevent spam, you must wait 10 seconds between each report",
-                        ephemeral: true,
-                    });
+                    await i.user.send(
+                        "Chill out! To prevent spam, you must wait 10 seconds between each report"
+                    );
                     return;
                 }
 
