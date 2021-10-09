@@ -1,6 +1,7 @@
 import { GuildChannel, MessageActionRow, MessageSelectMenu } from "discord.js";
 import { OptionType, slashLeaf } from "../slash-command";
 import { initStatus, ReportResult } from "./init/status";
+import { AsyncTaskQueue } from "./init/async-action-queue";
 
 export default slashLeaf({
     name: "init",
@@ -78,46 +79,50 @@ export default slashLeaf({
             components: createComponents(),
         });
 
+        const taskQueue = new AsyncTaskQueue();
+
         const collector =
             interaction.channel!.createMessageComponentCollector();
-        collector.on("collect", async (i) => {
+        collector.on("collect", (i) => {
             if (!i.isSelectMenu()) return;
 
-            const selected = i.values[0];
-            const start = parseInt(selected[0]);
-            const end = parseInt(selected[1]);
+            taskQueue.enqueue(async () => {
+                const selected = i.values[0];
+                const start = parseInt(selected[0]);
+                const end = parseInt(selected[1]);
 
-            const isBroke = i.customId === "report";
+                const isBroke = i.customId === "report";
 
-            const result = (isBroke ? status.report : status.resolve)(
-                start,
-                end
-            );
+                const result = (isBroke ? status.report : status.resolve)(
+                    start,
+                    end
+                );
 
-            switch (result) {
-                case ReportResult.Success:
-                    await i.update({
-                        content: status.message,
-                        components: createComponents(),
-                    });
-                    if (historyChannel) {
-                        //TODO
-                        //historyChannel.send()
-                    }
-                    break;
-                case ReportResult.Invalid:
-                    await i.reply({
-                        content: `The ${start} to ${end} doesn't exist, silly`,
-                        ephemeral: true,
-                    });
-                    break;
-                case ReportResult.Redundant:
-                    await i.reply({
-                        content:
-                            "Whoops! It seems like someone already reported this before you.",
-                        ephemeral: true,
-                    });
-            }
+                switch (result) {
+                    case ReportResult.Success:
+                        await i.update({
+                            content: status.message,
+                            components: createComponents(),
+                        });
+                        if (historyChannel) {
+                            //TODO
+                            //historyChannel.send()
+                        }
+                        break;
+                    case ReportResult.Invalid:
+                        await i.reply({
+                            content: `The ${start} to ${end} doesn't exist, silly`,
+                            ephemeral: true,
+                        });
+                        break;
+                    case ReportResult.Redundant:
+                        await i.reply({
+                            content:
+                                "Whoops! It seems like someone already reported this before you.",
+                            ephemeral: true,
+                        });
+                }
+            });
         });
     },
 });
