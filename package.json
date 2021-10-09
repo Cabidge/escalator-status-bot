@@ -6,7 +6,8 @@
     "scripts": {
         "start": "tsc && node dist/index.js",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "deploy": "tsc -p ./deploy.tsconfig.json && node deploy/deploy.js"
+        "deploy": "tsc -p ./deploy.tsconfig.json && node deploy/deploy.js",
+        "postinstall": "tsc"
     },
     "repository": {
         "type": "git",
