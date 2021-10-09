@@ -2,6 +2,7 @@ import { GuildChannel, MessageActionRow, MessageSelectMenu } from "discord.js";
 import { OptionType, slashLeaf } from "../slash-command";
 import { initStatus, ReportResult } from "./init/status";
 import { AsyncTaskQueue } from "./init/async-action-queue";
+import { AntiSpam } from "./init/anti-spam";
 
 export default slashLeaf({
     name: "init",
@@ -80,6 +81,7 @@ export default slashLeaf({
         });
 
         const taskQueue = new AsyncTaskQueue();
+        const antiSpam = new AntiSpam(10_000);
 
         const collector =
             interaction.channel!.createMessageComponentCollector();
@@ -90,6 +92,15 @@ export default slashLeaf({
                 const selected = i.values[0];
                 const start = parseInt(selected[0]);
                 const end = parseInt(selected[1]);
+
+                if (!antiSpam.tryInteract(i.user.id)) {
+                    await i.reply({
+                        content:
+                            "Chill out! To prevent spam, you must wait 10 seconds between each report",
+                        ephemeral: true,
+                    });
+                    return;
+                }
 
                 const isBroke = i.customId === "report";
 
