@@ -1,4 +1,4 @@
 import { SlashCommand } from "./slash-command";
-import init from "./commands/init";
+import prompt from "./commands/prompt";
 
-export const commands: SlashCommand[] = [init];
+export const commands: SlashCommand[] = [prompt];

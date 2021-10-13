@@ -4,13 +4,14 @@ import {
     MessageEmbed,
     MessageSelectMenu,
 } from "discord.js";
-import { OptionType, slashLeaf } from "../slash-command";
-import { initStatus, ReportResult } from "./init/status";
-import { AsyncTaskQueue } from "./init/async-action-queue";
-import { AntiSpam } from "./init/anti-spam";
+import { OptionType, slashLeaf } from "../../slash-command";
+import { initStatus, ReportResult } from "./shared/status";
+import { AsyncTaskQueue } from "./shared/async-action-queue";
+import { AntiSpam } from "./shared/anti-spam";
+import { adminOnly } from "../../slash-command/guards";
 
 export default slashLeaf({
-    name: "init",
+    name: "create",
     description:
         "Initializes an interactive message with the escalator statuses",
     options: [
@@ -21,15 +22,8 @@ export default slashLeaf({
             required: false,
         },
     ],
+    guards: [adminOnly],
     async execute(interaction) {
-        if (!interaction.inGuild()) {
-            await interaction.reply({
-                content: "Cannot init outside of a guild",
-                ephemeral: true,
-            });
-            return;
-        }
-
         const historyChannel = interaction.options.getChannel("history", false);
         if (
             historyChannel !== null &&
