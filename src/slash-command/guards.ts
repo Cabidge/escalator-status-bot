@@ -1,4 +1,4 @@
-import { CommandInteraction } from "discord.js";
+import { CommandInteraction, GuildManager, GuildMember } from "discord.js";
 
 export type CommandGuard = (interaction: CommandInteraction) => string | null;
 
@@ -13,7 +13,7 @@ export const adminOnly: CommandGuard = (interaction) => {
 
     const member = interaction.member!;
 
-    if (typeof member.permissions === "string") {
+    if (!(member instanceof GuildMember)) {
         console.log("APIMember:", member);
         return "An error ocurred attempting this command.";
     }
