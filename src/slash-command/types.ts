@@ -1,5 +1,6 @@
 import { APIApplicationCommandOption } from "discord-api-types";
 import { CommandInteraction } from "discord.js";
+import { CommandGuard } from "./guards";
 
 export type SlashCommand =
     | SlashCommandLeaf
@@ -34,6 +35,7 @@ export enum SlashCommandType {
 export interface SlashLeafOptions extends SlashOptionsBase {
     execute: SlashCommandExecute;
     options?: CommandOption[];
+    guards?: CommandGuard[];
 }
 
 export interface SlashBranchOptions extends SlashOptionsBase {
