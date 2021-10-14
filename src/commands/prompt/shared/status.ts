@@ -1,5 +1,6 @@
 import connections from "./connections";
 import { stripIndent } from "common-tags";
+import { MessageActionRow, MessageSelectMenu } from "discord.js";
 
 export enum ReportResult {
     Success,
@@ -9,7 +10,7 @@ export enum ReportResult {
 
 type Escalator = [number, number];
 
-interface Status {
+export interface Status {
     report(start: number, end: number): ReportResult;
     resolve(start: number, end: number): ReportResult;
     readonly message: string;
@@ -104,5 +105,40 @@ export function initStatus(): Status {
         get splitStatuses() {
             return split();
         },
+    };
+}
+
+export function createStatusBody(status: Status) {
+    const createSelectRow = (
+        escalators: [number, number][],
+        placeholder: string,
+        id: string
+    ) =>
+        new MessageActionRow().addComponents(
+            new MessageSelectMenu()
+                .setPlaceholder(placeholder)
+                .setCustomId(id)
+                .addOptions(
+                    escalators.map(([a, b]) => ({
+                        label: `${a} to ${b}`,
+                        value: `${a}${b}`,
+                    }))
+                )
+        );
+
+    const { woke, broke } = status.splitStatuses;
+    const components: MessageActionRow[] = [];
+    if (woke.length > 0)
+        components.push(
+            createSelectRow(woke, "Escalator machine broke", "report")
+        );
+    if (broke.length > 0)
+        components.push(
+            createSelectRow(broke, "Escalator has been revived", "resolve")
+        );
+
+    return {
+        components,
+        content: status.message,
     };
 }
