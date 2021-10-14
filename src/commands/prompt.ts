@@ -5,6 +5,6 @@ import reset from "./prompt/reset";
 
 export default slashBranch({
     name: "prompt",
-    description: "",
+    description: "Status prompt commands",
     commands: [create, delete_, reset],
 });
