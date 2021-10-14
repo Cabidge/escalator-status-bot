@@ -24,7 +24,7 @@ export default slashLeaf({
                 !historyChannel.isText())
         ) {
             await interaction.reply({
-                content: "History channel must be a text channel.",
+                content: "History channel must be a text channel",
                 ephemeral: true,
             });
             return;
