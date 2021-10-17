@@ -38,7 +38,8 @@ export default slashLeaf({
             return;
         }
 
-        const message = (await interaction.deferReply({
+        const message = (await interaction.reply({
+            content: "Creating prompt...",
             fetchReply: true,
         })) as Message;
 
