@@ -15,7 +15,7 @@ interface EscalatorState {
     readonly status: Status;
     readonly isActive: boolean;
     set history(value: TextChannel | NewsChannel | undefined);
-    bind(message: Message): void;
+    bind(message: Message): Promise<void>;
     reset(): Promise<void>;
     clear(): Promise<void>;
 }
@@ -49,6 +49,7 @@ async function reset() {
 async function bind(message: Message) {
     if (prompt) return;
 
+    message = await message.edit(createStatusBody(status));
     const collector = message.channel.createMessageComponentCollector();
 
     prompt = { message, collector };

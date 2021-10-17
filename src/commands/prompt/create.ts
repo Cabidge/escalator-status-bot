@@ -42,7 +42,7 @@ export default slashLeaf({
             fetchReply: true,
         })) as Message;
 
-        State.bind(message);
         State.history = historyChannel ?? undefined;
+        await State.bind(message);
     },
 });
