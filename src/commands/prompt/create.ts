@@ -30,7 +30,7 @@ export default slashLeaf({
             return;
         }
 
-        if (State.status !== undefined) {
+        if (State.isActive) {
             await interaction.reply({
                 content: "Prompt already exists",
                 ephemeral: true,

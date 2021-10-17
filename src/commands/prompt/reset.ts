@@ -7,14 +7,6 @@ export default slashLeaf({
     description: "Resets the escalator statuses",
     guards: [adminOnly],
     async execute(interaction) {
-        if (State.status === undefined) {
-            await interaction.reply({
-                content: "Prompt doesn't exist",
-                ephemeral: true,
-            });
-            return;
-        }
-
         await State.reset();
         await interaction.reply({
             content: "Prompt successfully reset",

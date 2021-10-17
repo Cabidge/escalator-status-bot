@@ -7,7 +7,7 @@ export default slashLeaf({
     description: "Deletes the created prompt",
     guards: [adminOnly],
     async execute(interaction) {
-        if (State.status === undefined) {
+        if (!State.isActive) {
             await interaction.reply({
                 content: "Prompt doesn't exist",
                 ephemeral: true,

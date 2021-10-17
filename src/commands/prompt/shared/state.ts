@@ -12,7 +12,8 @@ import { AsyncTaskQueue } from "./async-action-queue";
 import { AntiSpam } from "./anti-spam";
 
 interface EscalatorState {
-    readonly status?: Status;
+    readonly status: Status;
+    readonly isActive: boolean;
     set history(value: TextChannel | NewsChannel | undefined);
     bind(message: Message): void;
     reset(): Promise<void>;
@@ -148,6 +149,9 @@ export default {
     },
     set history(value: TextChannel | NewsChannel | undefined) {
         history = value;
+    },
+    get isActive() {
+        return prompt !== undefined;
     },
     bind,
     reset,
