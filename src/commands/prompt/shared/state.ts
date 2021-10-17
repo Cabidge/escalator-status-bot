@@ -14,7 +14,7 @@ import { AntiSpam } from "./anti-spam";
 interface EscalatorState {
     readonly status?: Status;
     set history(value: TextChannel | NewsChannel | undefined);
-    create(interaction: CommandInteraction): Promise<void>;
+    bind(message: Message): void;
     reset(): Promise<void>;
     clear(): Promise<void>;
 }
@@ -45,14 +45,10 @@ async function reset() {
     }
 }
 
-async function create(interaction: CommandInteraction) {
+async function bind(message: Message) {
     if (prompt) return;
 
-    const message = (await interaction.reply({
-        ...createStatusBody(status),
-        fetchReply: true,
-    })) as Message;
-    const collector = interaction.channel!.createMessageComponentCollector();
+    const collector = message.channel.createMessageComponentCollector();
 
     prompt = { message, collector };
 
@@ -153,7 +149,7 @@ export default {
     set history(value: TextChannel | NewsChannel | undefined) {
         history = value;
     },
+    bind,
     reset,
-    create,
     clear,
 } as EscalatorState;
