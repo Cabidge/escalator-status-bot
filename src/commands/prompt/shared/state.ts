@@ -13,10 +13,8 @@ import { AntiSpam } from "./anti-spam";
 
 interface EscalatorState {
     readonly status?: Status;
-    create(
-        interaction: CommandInteraction,
-        historyChannel?: TextChannel | NewsChannel
-    ): Promise<void>;
+    set history(value: TextChannel | NewsChannel | undefined);
+    create(interaction: CommandInteraction): Promise<void>;
     reset(): Promise<void>;
     clear(): Promise<void>;
 }
@@ -29,7 +27,7 @@ interface PromptState {
 let status = initStatus();
 
 let prompt: PromptState | undefined;
-let history: TextChannel | undefined;
+let history: TextChannel | NewsChannel | undefined;
 
 async function reset() {
     status = initStatus();
@@ -47,7 +45,7 @@ async function reset() {
     }
 }
 
-async function create(interaction: CommandInteraction, history?: TextChannel) {
+async function create(interaction: CommandInteraction) {
     if (prompt) return;
 
     const message = (await interaction.reply({
@@ -151,6 +149,9 @@ async function clear() {
 export default {
     get status() {
         return status;
+    },
+    set history(value: TextChannel | NewsChannel | undefined) {
+        history = value;
     },
     reset,
     create,
