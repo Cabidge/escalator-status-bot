@@ -20,21 +20,25 @@ export interface Status {
     };
 }
 
-export function initStatus(): Status {
+type RawStatus = Record<number, Record<number, boolean>>;
+
+const blankStatus = {};
+// Holy damn, I need to rework this
+for (const start in connections) {
+    // @ts-ignore
+    blankStatus[start] = {};
+    // @ts-ignore
+    for (const end of connections[start]) {
+        // @ts-ignore
+        blankStatus[start][end] = true;
+    }
+}
+
+export function initStatus(initialStatuses?: RawStatus): Status {
+    const statuses = initialStatuses ?? { ...blankStatus };
+
     // Active = true
     // Deactive = false
-    const statuses: Record<number, Record<number, boolean>> = {};
-
-    // Holy damn, I need to rework this
-    for (const start in connections) {
-        // @ts-ignore
-        statuses[start] = {};
-        // @ts-ignore
-        for (const end of connections[start]) {
-            // @ts-ignore
-            statuses[start][end] = true;
-        }
-    }
 
     function forEachStatus(fn: (esc: Escalator, isActive: boolean) => void) {
         for (const start in statuses) {
