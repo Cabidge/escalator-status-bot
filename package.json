@@ -21,6 +21,7 @@
     "homepage": "https://github.com/Cabidge/escalator-status-bot#readme",
     "dependencies": {
         "@discordjs/rest": "^0.1.0-canary.0",
+        "@octokit/rest": "^18.12.0",
         "@types/common-tags": "^1.8.1",
         "@types/node-fetch": "^3.0.3",
         "common-tags": "^1.8.0",
