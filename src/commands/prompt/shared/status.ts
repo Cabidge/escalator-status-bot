@@ -11,6 +11,7 @@ export enum ReportResult {
 type Escalator = [number, number];
 
 export interface Status {
+    toJSON(): any;
     report(start: number, end: number): ReportResult;
     resolve(start: number, end: number): ReportResult;
     readonly message: string;
@@ -89,6 +90,7 @@ export function initStatus(initialStatuses?: RawStatus): Status {
     };
 
     return {
+        toJSON: () => statuses,
         report: (a, b) => reportStatus(a, b, false),
         resolve: (a, b) => reportStatus(a, b, true),
         get message() {
