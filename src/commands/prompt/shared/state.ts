@@ -77,6 +77,25 @@ async function create(interaction: CommandInteraction, history?: TextChannel) {
                 return;
             }
 
+            const now = new Date();
+            const today = now.getDay();
+            // If today is Saturday or Sunday
+            if ([0, 6].includes(today)) {
+                await i.user.send(
+                    "Sorry, status reports are only active during school days"
+                );
+                return;
+            }
+
+            const hour = now.getHours();
+            // If the time is not between 7am and 5pm
+            if (hour < 7 || hour > 17) {
+                await i.user.send(
+                    "Sorry, status reports are only active during school hours"
+                );
+                return;
+            }
+
             const selected = i.values[0];
             const start = parseInt(selected[0]);
             const end = parseInt(selected[1]);
