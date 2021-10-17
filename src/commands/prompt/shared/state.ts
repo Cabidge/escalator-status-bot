@@ -21,22 +21,22 @@ interface EscalatorState {
     clear(): Promise<void>;
 }
 
-interface PrivateState {
-    status: Status;
-    promptMessage: Message;
+interface PromptState {
+    message: Message;
     collector: InteractionCollector<MessageComponentInteraction>;
-    history?: TextChannel;
 }
 
-let state: PrivateState | undefined;
+let status = initStatus();
+
+let prompt: PromptState | undefined;
+let history: TextChannel | undefined;
 
 async function reset() {
-    if (state === undefined) return;
+    status = initStatus();
 
-    state.status = initStatus();
-    const { promptMessage, status, history } = state;
-
-    await promptMessage.edit(createStatusBody(status));
+    if (prompt) {
+        await prompt.message.edit(createStatusBody(status));
+    }
 
     if (history) {
         const embed = new MessageEmbed()
@@ -48,22 +48,15 @@ async function reset() {
 }
 
 async function create(interaction: CommandInteraction, history?: TextChannel) {
-    if (state !== undefined) return;
+    if (prompt) return;
 
-    const collector = interaction.channel!.createMessageComponentCollector();
-    const status = initStatus();
-
-    const promptMessage = (await interaction.reply({
+    const message = (await interaction.reply({
         ...createStatusBody(status),
         fetchReply: true,
     })) as Message;
+    const collector = interaction.channel!.createMessageComponentCollector();
 
-    state = {
-        status,
-        collector,
-        promptMessage,
-        history,
-    };
+    prompt = { message, collector };
 
     const taskQueue = new AsyncTaskQueue();
     const antiSpam = new AntiSpam(10_000);
@@ -72,11 +65,6 @@ async function create(interaction: CommandInteraction, history?: TextChannel) {
         if (!i.isSelectMenu()) return;
 
         taskQueue.enqueue(async () => {
-            if (state === undefined) {
-                console.error("State not found");
-                return;
-            }
-
             const now = new Date();
             const today = now.getDay();
             // If today is Saturday or Sunday
@@ -99,8 +87,6 @@ async function create(interaction: CommandInteraction, history?: TextChannel) {
             const selected = i.values[0];
             const start = parseInt(selected[0]);
             const end = parseInt(selected[1]);
-
-            const { status, history } = state;
 
             const { user } = i;
             if (!antiSpam.tryInteract(user.id)) {
@@ -154,17 +140,17 @@ async function create(interaction: CommandInteraction, history?: TextChannel) {
 }
 
 async function clear() {
-    if (state === undefined) return;
+    if (prompt === undefined) return;
 
-    state.collector.stop("deletePrompt");
-    await state.promptMessage.delete();
+    prompt.collector.stop("deletePrompt");
+    await prompt.message.delete();
 
-    state = undefined;
+    prompt = undefined;
 }
 
 export default {
     get status() {
-        return state?.status;
+        return status;
     },
     reset,
     create,
