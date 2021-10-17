@@ -1,4 +1,4 @@
-import { GuildChannel } from "discord.js";
+import { GuildChannel, Message } from "discord.js";
 import { OptionType, slashLeaf } from "../../slash-command";
 import { adminOnly } from "../../slash-command/guards";
 import State from "./shared/state";
@@ -38,6 +38,11 @@ export default slashLeaf({
             return;
         }
 
-        await State.create(interaction, historyChannel ?? undefined);
+        const message = (await interaction.deferReply({
+            fetchReply: true,
+        })) as Message;
+
+        State.bind(message);
+        State.history = historyChannel ?? undefined;
     },
 });
