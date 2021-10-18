@@ -14,8 +14,11 @@ const client = new Client({
     intents: [Intents.FLAGS.GUILDS],
 });
 
-client.once("ready", () => {
-    console.log("Ready!");
+export const readyClient = new Promise<Client<true>>((resolve) => {
+    client.once("ready", (c) => {
+        console.log(`Ready @ ${Date()}`);
+        resolve(c);
+    });
 });
 
 const commandTree = createTree(commands);
