@@ -4,9 +4,17 @@ import {
     MessageComponentInteraction,
     MessageEmbed,
     NewsChannel,
+    Snowflake,
     TextChannel,
 } from "discord.js";
-import { createStatusBody, initStatus, ReportResult, Status } from "./status";
+import {
+    createStatusBody,
+    initStatus,
+    newBlankStatus,
+    RawStatus,
+    ReportResult,
+    Status,
+} from "./status";
 import { AsyncTaskQueue } from "./async-action-queue";
 import { AntiSpam } from "./anti-spam";
 import { readyClient } from "../../..";
@@ -26,22 +34,79 @@ interface PromptState {
     collector: InteractionCollector<MessageComponentInteraction>;
 }
 
-const repoJson = new RepoJson({
-    token: process.env.ESC_GH_TOKEN!,
-    userAgent: "escalator-status-bot",
-    owner: "Cabidge",
-    repo: "escalator-status-db",
-    path: "state.json",
-    defaultObj: {},
-});
+export interface StatusJson {
+    type: "status";
+    data: RawStatus;
+}
+
+interface ChannelJson {
+    type: "channel";
+    id: Snowflake;
+}
+
+interface MessageJson {
+    type: "message";
+    id: Snowflake;
+    channel: ChannelJson;
+}
+
+interface StateJson {
+    status: StatusJson;
+    history?: ChannelJson;
+    prompt?: MessageJson;
+}
+
+interface State {
+    status: Status;
+    history?: TextChannel | NewsChannel;
+    prompt?: Message;
+}
 
 export default (async () => {
     const client = await readyClient;
 
-    let status = initStatus();
+    const repoJson = new RepoJson<StateJson>({
+        token: process.env.ESC_GH_TOKEN!,
+        userAgent: "escalator-status-bot",
+        owner: "Cabidge",
+        repo: "escalator-status-db",
+        path: "state.json",
+        defaultObj: {
+            status: {
+                type: "status",
+                data: newBlankStatus(),
+            },
+        } as StateJson,
+    });
+
+    await repoJson.pull();
 
     let prompt: PromptState | undefined;
-    let history: TextChannel | NewsChannel | undefined;
+    let { status, history } = await (async () => {
+        const json = repoJson.obj;
+        const status = initStatus(json.status.data);
+
+        let history: TextChannel | NewsChannel | undefined;
+        if (json.history) {
+            const channel = await client.channels.fetch(json.history.id);
+            if (
+                channel?.type == "GUILD_TEXT" ||
+                channel?.type == "GUILD_NEWS"
+            ) {
+                history = channel as TextChannel | NewsChannel;
+            }
+        }
+
+        if (json.prompt) {
+            const channel = await client.channels.fetch(json.prompt.channel.id);
+            if (channel?.isText()) {
+                const message = await channel.messages.fetch(json.prompt.id);
+                await bind(message);
+            }
+        }
+
+        return { status, history };
+    })();
 
     async function reset() {
         status = initStatus();
