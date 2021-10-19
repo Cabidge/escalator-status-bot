@@ -24,7 +24,7 @@ export interface Status {
 
 export type RawStatus = Record<number, Record<number, boolean>>;
 
-const blankStatus = {};
+export const blankStatus = {};
 // Holy damn, I need to rework this
 for (const start in connections) {
     // @ts-ignore
