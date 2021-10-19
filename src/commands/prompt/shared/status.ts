@@ -24,20 +24,23 @@ export interface Status {
 
 export type RawStatus = Record<number, Record<number, boolean>>;
 
-export const blankStatus = {};
-// Holy damn, I need to rework this
-for (const start in connections) {
-    // @ts-ignore
-    blankStatus[start] = {};
-    // @ts-ignore
-    for (const end of connections[start]) {
+export const newBlankStatus = () => {
+    const blankStatus = {};
+    // Holy damn, I need to rework this
+    for (const start in connections) {
         // @ts-ignore
-        blankStatus[start][end] = true;
+        blankStatus[start] = {};
+        // @ts-ignore
+        for (const end of connections[start]) {
+            // @ts-ignore
+            blankStatus[start][end] = true;
+        }
     }
-}
+    return blankStatus as RawStatus;
+};
 
 export function initStatus(initialStatuses?: RawStatus): Status {
-    const statuses = initialStatuses ?? { ...blankStatus };
+    const statuses = initialStatuses ?? newBlankStatus();
 
     // Active = true
     // Deactive = false
