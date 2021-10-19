@@ -102,25 +102,28 @@ export class RepoFile {
     }
 }
 
-type Reviver = NonNullable<Parameters<typeof JSON.parse>[1]>;
+type JSONer = NonNullable<Parameters<typeof JSON.parse>[1]>;
 
-interface RepoJsonOptions extends Omit<RepoFileOptions, "defaultContent"> {
-    defaultObj?: any;
-    reviver?: Reviver;
+interface RepoJsonOptions<T> extends Omit<RepoFileOptions, "defaultContent"> {
+    defaultObj: T;
+    reviver?: JSONer;
+    replacer?: JSONer;
 }
 
-export class RepoJson {
-    public obj: any;
+export class RepoJson<T = any> {
+    public obj: T;
     private readonly file: RepoFile;
-    private readonly reviver?: Reviver;
+    private readonly reviver?: JSONer;
+    private readonly replacer?: JSONer;
 
-    constructor(options: RepoJsonOptions) {
+    constructor(options: RepoJsonOptions<T>) {
         this.reviver = options.reviver;
+        this.replacer = options.replacer;
 
-        const { defaultObj = {} } = options;
+        const { defaultObj } = options;
         this.obj = { ...defaultObj };
 
-        const defaultContent = JSON.stringify(defaultObj);
+        const defaultContent = JSON.stringify(defaultObj, this.replacer);
         this.file = new RepoFile({
             ...options,
             defaultContent,
@@ -136,7 +139,7 @@ export class RepoJson {
     pullShaOnly = () => this.file.pullShaOnly();
 
     push(...args: Parameters<RepoFile["push"]>) {
-        this.file.content = JSON.stringify(this.obj);
+        this.file.content = JSON.stringify(this.obj, this.replacer);
         return this.file.push(...args);
     }
 }
