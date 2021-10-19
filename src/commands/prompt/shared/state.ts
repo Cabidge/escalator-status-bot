@@ -1,4 +1,5 @@
 import {
+    Channel,
     InteractionCollector,
     Message,
     MessageComponentInteraction,
@@ -81,6 +82,8 @@ export default (async () => {
 
     await repoJson.pull();
 
+    let hasChanges = false;
+
     let prompt: PromptState | undefined;
     let { status, history } = await (async () => {
         const json = repoJson.obj;
@@ -122,6 +125,8 @@ export default (async () => {
 
             await history.send({ embeds: [embed] });
         }
+
+        hasChanges = true;
     }
 
     async function bind(message: Message) {
@@ -209,6 +214,8 @@ export default (async () => {
                             ephemeral: true,
                         });
                 }
+
+                hasChanges = true;
             });
         });
     }
@@ -220,7 +227,35 @@ export default (async () => {
         await prompt.message.delete();
 
         prompt = undefined;
+
+        hasChanges = true;
     }
+
+    setInterval(async () => {
+        if (!hasChanges) return;
+
+        const json = repoJson.obj;
+
+        json.status = status.toJSON();
+
+        json.history = history && {
+            type: "channel",
+            id: history.id,
+        };
+
+        json.prompt = prompt && {
+            type: "message",
+            id: prompt.message.id,
+            channel: {
+                type: "channel",
+                id: prompt.message.channelId,
+            },
+        };
+
+        repoJson.push("Updated state");
+
+        hasChanges = false;
+    }, 1000 * 60 * 10);
 
     return {
         get status() {
