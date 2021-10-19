@@ -21,7 +21,7 @@ export interface Status {
     };
 }
 
-type RawStatus = Record<number, Record<number, boolean>>;
+export type RawStatus = Record<number, Record<number, boolean>>;
 
 const blankStatus = {};
 // Holy damn, I need to rework this
