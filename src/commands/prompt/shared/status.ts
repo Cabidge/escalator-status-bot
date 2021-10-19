@@ -1,6 +1,7 @@
 import connections from "./connections";
 import { stripIndent } from "common-tags";
 import { MessageActionRow, MessageSelectMenu } from "discord.js";
+import { StatusJson } from "./state";
 
 export enum ReportResult {
     Success,
@@ -90,7 +91,11 @@ export function initStatus(initialStatuses?: RawStatus): Status {
     };
 
     return {
-        toJSON: () => statuses,
+        toJSON: () =>
+            ({
+                type: "status",
+                data: statuses,
+            } as StatusJson),
         report: (a, b) => reportStatus(a, b, false),
         resolve: (a, b) => reportStatus(a, b, true),
         get message() {
