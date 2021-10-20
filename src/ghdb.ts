@@ -87,12 +87,14 @@ export class RepoFile {
         if (pullSha) await this.pullShaOnly();
 
         try {
-            await this.octo.rest.repos.createOrUpdateFileContents({
+            const res = await this.octo.rest.repos.createOrUpdateFileContents({
                 ...this.fileInfo,
                 sha: this.sha,
                 content: buff.toString("base64"),
                 message: message,
             });
+            const newSha = res.data.content?.sha;
+            if (newSha) this.sha = newSha;
             return true;
         } catch (e: any) {
             // Conflict error
