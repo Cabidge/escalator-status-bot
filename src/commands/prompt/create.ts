@@ -1,7 +1,7 @@
 import { GuildChannel, Message } from "discord.js";
 import { OptionType, slashLeaf } from "../../slash-command";
 import { adminOnly } from "../../slash-command/guards";
-import State from "./shared/state";
+import AsyncState from "./shared/state";
 
 export default slashLeaf({
     name: "create",
@@ -17,6 +17,8 @@ export default slashLeaf({
     ],
     guards: [adminOnly],
     async execute(interaction) {
+        const State = await AsyncState;
+
         const historyChannel = interaction.options.getChannel("history", false);
         if (
             historyChannel !== null &&
