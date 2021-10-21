@@ -47,10 +47,10 @@ export class EscalatorState {
         const status = this.status.toJSON() as StatusJson;
 
         const history =
-            this.history &&
+            this._history &&
             ({
                 type: "channel",
-                id: this.history.id,
+                id: this._history.id,
             } as ChannelJson);
 
         const prompt = this.prompt?.toJSON();
