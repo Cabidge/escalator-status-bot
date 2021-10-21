@@ -69,6 +69,8 @@ export class EscalatorState {
             message,
             this,
             ({ start, end, isBroke, reporter }) => {
+                this.hasChanged = true;
+
                 if (this._history) {
                     const embed = new MessageEmbed()
                         .setColor(isBroke ? "RED" : "GREEN")
