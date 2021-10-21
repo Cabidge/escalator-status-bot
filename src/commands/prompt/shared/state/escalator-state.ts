@@ -71,21 +71,19 @@ export class EscalatorState {
             ({ start, end, isBroke, reporter }) => {
                 this.hasChanged = true;
 
-                if (this._history) {
-                    const embed = new MessageEmbed()
-                        .setColor(isBroke ? "RED" : "GREEN")
-                        .setAuthor(
-                            `reported by ${reporter.tag}`,
-                            reporter.avatarURL() ?? undefined
-                        )
-                        .setTitle(
-                            `${start}-${end} is ${
-                                isBroke ? "down" : "back and running"
-                            }!`
-                        );
+                const embed = new MessageEmbed()
+                    .setColor(isBroke ? "RED" : "GREEN")
+                    .setAuthor(
+                        `reported by ${reporter.tag}`,
+                        reporter.avatarURL() ?? undefined
+                    )
+                    .setTitle(
+                        `${start}-${end} is ${
+                            isBroke ? "down" : "back and running"
+                        }!`
+                    );
 
-                    this._history.send({ embeds: [embed] });
-                }
+                this.announce({ embeds: [embed] });
             }
         );
         this.hasChanged = true;
@@ -98,13 +96,11 @@ export class EscalatorState {
             await this.prompt.refresh();
         }
 
-        if (this._history) {
-            const embed = new MessageEmbed()
-                .setColor("GREEN")
-                .setTitle("All escalator statuses have been reset");
+        const embed = new MessageEmbed()
+            .setColor("GREEN")
+            .setTitle("All escalator statuses have been reset");
 
-            await this._history.send({ embeds: [embed] });
-        }
+        await this.announce({ embeds: [embed] });
 
         this.hasChanged = true;
     }
@@ -121,5 +117,14 @@ export class EscalatorState {
 
     get hasPrompt() {
         return this.prompt !== undefined;
+    }
+
+    async announce(...args: Parameters<TextBasedChannels["send"]>) {
+        if (this._history) {
+            const msg = await this._history.send(...args);
+            if (msg.crosspostable) {
+                await msg.crosspost();
+            }
+        }
     }
 }
