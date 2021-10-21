@@ -1,7 +1,7 @@
 import connections from "./connections";
 import { stripIndent } from "common-tags";
 import { MessageActionRow, MessageSelectMenu } from "discord.js";
-import { StatusJson } from "./state";
+import { StatusJson } from "./state/escalator-state";
 
 export enum ReportResult {
     Success,

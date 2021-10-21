@@ -7,17 +7,17 @@ import {
 import { initStatus, RawStatus, Status } from "../status";
 import { StatusPrompt } from "./status-prompt";
 
-interface StatusJson {
+export interface StatusJson {
     type: "status";
     data: RawStatus;
 }
 
-interface ChannelJson {
+export interface ChannelJson {
     type: "channel";
     id: Snowflake;
 }
 
-interface MessageJson {
+export interface MessageJson {
     type: "message";
     id: Snowflake;
     channel: ChannelJson;
