@@ -43,6 +43,7 @@ export class EscalatorState {
 
     get updatedJSON() {
         if (!this.hasChanged) return null;
+        this.hasChanged = false;
 
         const status = this.status.toJSON() as StatusJson;
 
