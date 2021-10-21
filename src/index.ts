@@ -1,5 +1,6 @@
 import { Client, CommandInteraction, Intents } from "discord.js";
 import { commands } from "./commands";
+import { onClientReady } from "./commands/prompt/shared/state";
 import {
     commandBranches,
     createTree,
@@ -10,15 +11,13 @@ import { TOKEN } from "./token";
 
 export type SlashExecution = (interaction: CommandInteraction) => Promise<void>;
 
-const client = new Client({
+export const client = new Client({
     intents: [Intents.FLAGS.GUILDS],
 });
 
-export const readyClient = new Promise<Client<true>>((resolve) => {
-    client.once("ready", (c) => {
-        console.log(`Ready @ ${Date()}`);
-        resolve(c);
-    });
+client.once("ready", (c) => {
+    console.log(`Ready @ ${Date()}`);
+    onClientReady(c);
 });
 
 const commandTree = createTree(commands);

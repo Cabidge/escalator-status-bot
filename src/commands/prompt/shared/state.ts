@@ -1,11 +1,17 @@
 import { initStatus, newBlankStatus } from "./status";
-import { readyClient } from "../../..";
 import { RepoJson } from "../../../ghdb";
 import { EscalatorState, StateJson } from "./state/escalator-state";
+import { Client } from "discord.js";
 
-export default (async () => {
-    const client = await readyClient;
+// Hacky work around for a problem that i still don't understand
+// Importing from index is undefined for some reason
+let resolve: (a: any) => void;
 
+const state = new Promise<EscalatorState>((res) => {
+    resolve = res;
+});
+
+export async function onClientReady(client: Client<true>) {
     const repoJson = new RepoJson<StateJson>({
         token: process.env.ESC_GH_TOKEN!,
         userAgent: "escalator-status-bot",
@@ -54,5 +60,7 @@ export default (async () => {
         repoJson.push("Updated state");
     }, 5_000);
 
-    return state;
-})();
+    resolve(state);
+}
+
+export default state;
