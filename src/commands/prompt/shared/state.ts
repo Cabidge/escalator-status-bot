@@ -1,4 +1,3 @@
-import { NewsChannel, TextChannel } from "discord.js";
 import { initStatus, newBlankStatus } from "./status";
 import { readyClient } from "../../..";
 import { RepoJson } from "../../../ghdb";
