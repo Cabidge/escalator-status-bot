@@ -32,7 +32,7 @@ export default slashLeaf({
             return;
         }
 
-        if (State.isActive) {
+        if (State.hasPrompt) {
             await interaction.reply({
                 content: "Prompt already exists",
                 ephemeral: true,
@@ -46,6 +46,6 @@ export default slashLeaf({
         })) as Message;
 
         State.history = historyChannel ?? undefined;
-        await State.bind(message);
+        await State.bindPromptTo(message);
     },
 });

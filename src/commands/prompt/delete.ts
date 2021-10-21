@@ -9,7 +9,7 @@ export default slashLeaf({
     async execute(interaction) {
         const State = await AsyncState;
 
-        if (!State.isActive) {
+        if (!State.hasPrompt) {
             await interaction.reply({
                 content: "Prompt doesn't exist",
                 ephemeral: true,
@@ -17,7 +17,7 @@ export default slashLeaf({
             return;
         }
 
-        await State.clear();
+        await State.deletePrompt();
         await interaction.reply({
             content: "Prompt deleted",
             ephemeral: true,
