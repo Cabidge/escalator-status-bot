@@ -123,7 +123,7 @@ export class EscalatorState {
         if (this._history) {
             const msg = await this._history.send(...args);
             if (msg.crosspostable) {
-                await msg.crosspost();
+                await msg.crosspost().catch(console.error);
             }
         }
     }
