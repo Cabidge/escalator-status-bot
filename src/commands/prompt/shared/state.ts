@@ -29,7 +29,6 @@ export default (async () => {
 
         const state = new EscalatorState(status);
 
-        let history: TextChannel | NewsChannel | undefined;
         if (json.history) {
             const channel = await client.channels.fetch(json.history.id);
             if (channel?.isText()) state.history = channel;
